@@ -4,6 +4,8 @@
 #include "connection.h"
 #include "commande.h"
 
+
+
 namespace Ui {
 class MainWindow;
 }
@@ -27,9 +29,33 @@ private slots:
 
        void on_pdfCl_clicked();
 
+
+
+       void on_chercher_idCl_cursorPositionChanged(int arg1, int arg2);
+
+       void on_pushButton_clicked();
+
+
+
+       void on_tricomboBox_activated(int index);
+
+
+
+
+
+
+       void on_pushButton_2_clicked();
+
+       void on_QR_code_clicked();
+
+       void on_statistiqueCl_clicked();
+
 private:
     Ui::MainWindow *ui;
     commande C;
+
 };
+
+
 
 #endif

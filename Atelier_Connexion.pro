@@ -3,8 +3,20 @@
 # Project created by QtCreator 2018-10-26T21:45:23
 #
 #-------------------------------------------------
+QT       += core gui widgets uitools sql printsupport network widgets xml  \
+    quick
 
 QT       += core gui sql
+
+
+QT += widgets
+
+QT += network
+
+QT += charts
+
+
+
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 

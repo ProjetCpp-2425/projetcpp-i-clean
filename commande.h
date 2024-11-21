@@ -4,6 +4,7 @@
 #include <QSqlQuery>
 
 
+
 class commande
 {
 public:
@@ -34,6 +35,12 @@ public:
     QSqlQueryModel* afficher();
     bool supprimer(int);
     bool modifier(int);
+    bool exporterPDF(const QString& fileName, QSqlQueryModel* model);
+    bool rechercherParId(int id);
+
+
+
+
 private:
     QString  nom, prenom,location, email;
     int id ,tel,nbor;
