@@ -29,8 +29,10 @@ public:
     void setNb_Taches(QString nb) { nb_taches = nb; }
     void setSalaire(int s) { salaire = s; }
     QSqlQueryModel * afficher(QString adressef);
-    QSqlQueryModel * rechercher(int idf);
+    QSqlQueryModel * rechercher(int idf, const QString& adressef, const QString& telf);
     QSqlQueryModel* trier();
+    QSqlQueryModel* trierParAdresse();
+    QSqlQueryModel* trierParPrenom();
     QSqlQueryModel * stat();
 
     bool afficher();
