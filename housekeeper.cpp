@@ -9,29 +9,23 @@
 
 
 
-Housekeeper::Housekeeper(QString nomf, QString prenomf, QString adressef, int idf, QString telf){ //, QString type, QString nb_taches, int salaire) {
+Housekeeper::Housekeeper(QString nomf, QString prenomf, QString adressef, int idf, QString telf){
     this->nomf=nomf;
     this->prenomf=prenomf;
     this->adressef=adressef;
     this->idf=idf;
     this->telf=telf;
-   // this->type = type;
-   // this->nb_taches = nb_taches;
-   // this->salaire = salaire;
 }
 bool Housekeeper::ajouter() {
     QSqlQuery query;
-    query.prepare("INSERT INTO HOUSEKEEPER(NOMF, PRENOMF, ADRESSEF, IDF,TELF)" //, TYPE, NB_TACHES, SALAIRE) "
-                  "VALUES(:nomf, :prenomf, :adressef, :idf, :telf)"); //, :type, :nb_taches, :salaire)");
+    query.prepare("INSERT INTO HOUSEKEEPER(NOMF, PRENOMF, ADRESSEF, IDF,TELF)"
+                  "VALUES(:nomf, :prenomf, :adressef, :idf, :telf)");
 
     query.bindValue(":nomf", nomf);
     query.bindValue(":prenomf", prenomf);
     query.bindValue(":adressef", adressef);
     query.bindValue(":idf", idf);
     query.bindValue(":telf", telf);
-    //query.bindValue(":type", type);
-   // query.bindValue(":nb_taches", nb_taches);
-  //  query.bindValue(":salaire", salaire);
 
     if (query.exec()) {
         return true;
@@ -103,9 +97,6 @@ bool Housekeeper::modifier() {
     query.bindValue(":adressef", adressef);
     query.bindValue(":idf", idf);
     query.bindValue(":telf", telf);
-   // query.bindValue(":type", type);
-    //query.bindValue(":nb_taches", nb_taches);
-  //  query.bindValue(":salaire", salaire);
 
     if (query.exec()) {
         qDebug() << "Housekeeper updated successfully!";
@@ -115,15 +106,24 @@ bool Housekeeper::modifier() {
         return false;
     }
 }
-QSqlQueryModel* Housekeeper::rechercher(int idf) {
-    QSqlQueryModel *model = new QSqlQueryModel();
+QSqlQueryModel* Housekeeper::rechercher(int idf, const QString& adressef, const QString& telf) {
+    QSqlQueryModel* model = new QSqlQueryModel();
     QSqlQuery query;
 
-    // Préparer la requête pour rechercher le housekeeper par ID
-    query.prepare("SELECT * FROM HOUSEKEEPER WHERE IDF = :idf");
-    query.bindValue(":idf", idf);
-    query.exec();
+    // Construire la requête SQL selon les critères non vides
+    if (idf != -1) {
+        query.prepare("SELECT * FROM HOUSEKEEPER WHERE IDF = :idf");
+        query.bindValue(":idf", idf);
+    } else if (!adressef.isEmpty()) {
+        query.prepare("SELECT * FROM HOUSEKEEPER WHERE ADRESSEF LIKE :adressef");
+        query.bindValue(":adressef", "%" + adressef + "%");
+    } else if (!telf.isEmpty()) {
+        query.prepare("SELECT * FROM HOUSEKEEPER WHERE TELF LIKE :telf");
+        query.bindValue(":telf", "%" + telf + "%");
+    }
 
+    // Exécuter la requête et associer au modèle
+    query.exec();
     model->setQuery(query);
 
     // Définir les en-têtes des colonnes
@@ -135,14 +135,14 @@ QSqlQueryModel* Housekeeper::rechercher(int idf) {
 
     return model;
 }
+
 QSqlQueryModel* Housekeeper::trier() {
-    QSqlQueryModel *model = new QSqlQueryModel();
-
-    // Requête SQL pour trier les housekeepers par la date d'ajout (DATEF)
+    QSqlQueryModel* model = new QSqlQueryModel();
     QSqlQuery query;
-    query.prepare("SELECT * FROM HOUSEKEEPER ORDER BY DATEF ASC"); // Tri croissant selon DATEF
-    query.exec();
 
+    // Tri par date d'ajout
+    query.prepare("SELECT * FROM HOUSEKEEPER ORDER BY DATEF ASC");
+    query.exec();
     model->setQuery(query);
 
     // Définir les en-têtes des colonnes
@@ -151,11 +151,51 @@ QSqlQueryModel* Housekeeper::trier() {
     model->setHeaderData(2, Qt::Horizontal, QObject::tr("Adresse"));
     model->setHeaderData(3, Qt::Horizontal, QObject::tr("ID"));
     model->setHeaderData(4, Qt::Horizontal, QObject::tr("Date d'ajout"));
-    model->setHeaderData(5, Qt::Horizontal, QObject::tr("phone num"));
-
+    model->setHeaderData(5, Qt::Horizontal, QObject::tr("Phone num"));
 
     return model;
 }
+
+QSqlQueryModel* Housekeeper::trierParAdresse() {
+    QSqlQueryModel* model = new QSqlQueryModel();
+    QSqlQuery query;
+
+    // Tri par adresse
+    query.prepare("SELECT * FROM HOUSEKEEPER ORDER BY ADRESSEF ASC");
+    query.exec();
+    model->setQuery(query);
+
+    // Définir les en-têtes des colonnes
+    model->setHeaderData(0, Qt::Horizontal, QObject::tr("last name"));
+    model->setHeaderData(1, Qt::Horizontal, QObject::tr("name"));
+    model->setHeaderData(2, Qt::Horizontal, QObject::tr("Adress"));
+    model->setHeaderData(3, Qt::Horizontal, QObject::tr("ID"));
+    model->setHeaderData(4, Qt::Horizontal, QObject::tr("adding date"));
+    model->setHeaderData(5, Qt::Horizontal, QObject::tr("Phone num"));
+
+    return model;
+}
+
+QSqlQueryModel* Housekeeper::trierParPrenom() {
+    QSqlQueryModel* model = new QSqlQueryModel();
+    QSqlQuery query;
+
+    // Tri par prénom
+    query.prepare("SELECT * FROM HOUSEKEEPER ORDER BY PRENOMF ASC");
+    query.exec();
+    model->setQuery(query);
+
+    // Définir les en-têtes des colonnes
+    model->setHeaderData(0, Qt::Horizontal, QObject::tr("last name"));
+    model->setHeaderData(1, Qt::Horizontal, QObject::tr("name"));
+    model->setHeaderData(2, Qt::Horizontal, QObject::tr("Adress"));
+    model->setHeaderData(3, Qt::Horizontal, QObject::tr("ID"));
+    model->setHeaderData(4, Qt::Horizontal, QObject::tr("adding date"));
+    model->setHeaderData(5, Qt::Horizontal, QObject::tr("Phone num"));
+
+    return model;
+}
+
 QSqlQueryModel* Housekeeper::stat() {
     QSqlQueryModel* model = new QSqlQueryModel();
     QSqlQuery query;
