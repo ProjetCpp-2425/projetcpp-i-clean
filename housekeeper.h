@@ -39,6 +39,7 @@ public:
     bool modifier();
     bool rechercher();
     int calculerSalaire( QString& type, QString nb_taches);
+    bool envoyerSMS(const QString &tel, const QString &localisation, bool classic, bool smart, bool urgence);
 
 };
 #endif // HOUSEKEEPER_H
