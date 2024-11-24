@@ -8,6 +8,11 @@ QT       += core gui sql
 QT       += printsupport
 QT += widgets
 QT += charts
+QT += network
+QT += core gui network
+QT += core gui
+CONFIG += c++11
+
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = Atelier_Connexion
