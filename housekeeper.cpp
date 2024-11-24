@@ -5,6 +5,9 @@
 #include <QSqlQueryModel>
 #include <QSqlError>
 #include <QDebug>
+#include <QMessageBox>
+
+
 
 Housekeeper::Housekeeper(QString nomf, QString prenomf, QString adressef, int idf, QString telf){ //, QString type, QString nb_taches, int salaire) {
     this->nomf=nomf;
@@ -12,9 +15,9 @@ Housekeeper::Housekeeper(QString nomf, QString prenomf, QString adressef, int id
     this->adressef=adressef;
     this->idf=idf;
     this->telf=telf;
-    // this->type = type;
-    // this->nb_taches = nb_taches;
-    // this->salaire = salaire;
+   // this->type = type;
+   // this->nb_taches = nb_taches;
+   // this->salaire = salaire;
 }
 bool Housekeeper::ajouter() {
     QSqlQuery query;
@@ -27,8 +30,8 @@ bool Housekeeper::ajouter() {
     query.bindValue(":idf", idf);
     query.bindValue(":telf", telf);
     //query.bindValue(":type", type);
-    // query.bindValue(":nb_taches", nb_taches);
-    //  query.bindValue(":salaire", salaire);
+   // query.bindValue(":nb_taches", nb_taches);
+  //  query.bindValue(":salaire", salaire);
 
     if (query.exec()) {
         return true;
@@ -100,9 +103,9 @@ bool Housekeeper::modifier() {
     query.bindValue(":adressef", adressef);
     query.bindValue(":idf", idf);
     query.bindValue(":telf", telf);
-    // query.bindValue(":type", type);
+   // query.bindValue(":type", type);
     //query.bindValue(":nb_taches", nb_taches);
-    //  query.bindValue(":salaire", salaire);
+  //  query.bindValue(":salaire", salaire);
 
     if (query.exec()) {
         qDebug() << "Housekeeper updated successfully!";
@@ -192,4 +195,30 @@ int Housekeeper::calculerSalaire(QString& type, QString nb_taches) {
     }
 
     return salaire;
+}
+
+bool Housekeeper::envoyerSMS(const QString &telf, const QString &localisation, bool classic, bool smart, bool urgence) {
+    // Validation du numéro de téléphone
+    QSqlQuery query;
+    query.prepare("SELECT COUNT(*) FROM HOUSEKEEPER WHERE TELF = :telf");
+    query.bindValue(":telf", telf);
+    query.exec();
+
+    if (!query.next() || query.value(0).toInt() == 0) {
+        qDebug() << "Numéro de téléphone invalide:" << telf;
+        return false; // Indiquer que le numéro n'existe pas
+    }
+
+    // Construction du message
+    QString message = "Localisation du client : " + localisation + "\nType de nettoyage : ";
+
+    if (classic) { message += "Classic Clean "; }
+    if (smart) { message += "Smart Clean "; }
+    if (urgence) { message += "Urgence "; }
+
+    // Code fictif d'envoi de SMS
+    qDebug() << "Envoi de message à:" << telf << "Message:" << message;
+    // Vous devez appeler votre API SMS ici pour l'envoi réel
+
+    return true; // Retourne vrai pour que l'appelant sache que l'envoi a réussi
 }
