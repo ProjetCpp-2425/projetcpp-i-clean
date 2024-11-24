@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>797</width>
-    <height>537</height>
+    <width>795</width>
+    <height>526</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -1099,14 +1099,14 @@ border-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 rgba(10
        <widget class="QLabel" name="label_32">
         <property name="geometry">
          <rect>
-          <x>230</x>
-          <y>90</y>
+          <x>220</x>
+          <y>80</y>
           <width>63</width>
           <height>31</height>
          </rect>
         </property>
         <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;ID&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;ID&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
        </widget>
        <widget class="Line" name="line_11">
@@ -1173,10 +1173,10 @@ border-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 rgba(10
        <widget class="QLineEdit" name="lineEditSupprimer">
         <property name="geometry">
          <rect>
-          <x>260</x>
-          <y>100</y>
-          <width>211</width>
-          <height>31</height>
+          <x>250</x>
+          <y>90</y>
+          <width>221</width>
+          <height>21</height>
          </rect>
         </property>
        </widget>
@@ -1184,7 +1184,7 @@ border-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 rgba(10
         <property name="geometry">
          <rect>
           <x>290</x>
-          <y>140</y>
+          <y>120</y>
           <width>181</width>
           <height>31</height>
          </rect>
@@ -1194,13 +1194,13 @@ border-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 rgba(10
         <property name="geometry">
          <rect>
           <x>220</x>
-          <y>140</y>
+          <y>120</y>
           <width>71</width>
           <height>31</height>
          </rect>
         </property>
         <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;ADRESS&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;ADRESS&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
        </widget>
        <widget class="QTableView" name="tableView1">
@@ -1321,9 +1321,9 @@ border-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 rgba(10
        <widget class="QLabel" name="label_139">
         <property name="geometry">
          <rect>
-          <x>650</x>
+          <x>740</x>
           <y>160</y>
-          <width>141</width>
+          <width>51</width>
           <height>41</height>
          </rect>
         </property>
@@ -1340,9 +1340,9 @@ border-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 rgba(10
        <widget class="QPushButton" name="pushButton_pdf">
         <property name="geometry">
          <rect>
-          <x>650</x>
+          <x>740</x>
           <y>160</y>
-          <width>141</width>
+          <width>51</width>
           <height>41</height>
          </rect>
         </property>
@@ -1362,6 +1362,54 @@ border-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 rgba(10
           <height>251</height>
          </rect>
         </property>
+       </widget>
+       <widget class="QLineEdit" name="lineEditTel">
+        <property name="geometry">
+         <rect>
+          <x>280</x>
+          <y>160</y>
+          <width>181</width>
+          <height>31</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_74">
+        <property name="geometry">
+         <rect>
+          <x>230</x>
+          <y>170</y>
+          <width>71</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;PHONE&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+       <widget class="QComboBox" name="comboBox_tri">
+        <property name="geometry">
+         <rect>
+          <x>650</x>
+          <y>165</y>
+          <width>81</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <item>
+         <property name="text">
+          <string>sort by name</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>sort by adding date</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>sort by adress</string>
+         </property>
+        </item>
        </widget>
       </widget>
       <widget class="QWidget" name="page_4"/>
@@ -9189,7 +9237,7 @@ border-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 rgba(10
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>797</width>
+     <width>795</width>
      <height>26</height>
     </rect>
    </property>
