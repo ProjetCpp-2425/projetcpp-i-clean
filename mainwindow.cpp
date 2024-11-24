@@ -9,6 +9,17 @@
 #include <QPdfWriter>
 #include <QPainter>
 #include <QTextDocument>
+#include <QJsonDocument>
+#include <QMessageBox>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QHttpMultiPart>
+
+
+
+#include <QDebug>
+
+
 #include <QMainWindow>
 #include <QGraphicsScene>
 #include <QGraphicsRectItem>
@@ -20,7 +31,6 @@
 #include <QFont>
 #include <QColor>
 #include <QTextCharFormat>
-
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -40,14 +50,14 @@ void MainWindow::on_pushButton_ajouter_clicked()
     QString adressef = ui->adresse->text();
     QString idf_str = ui->id->text();
     QString telf = ui->tel->text();
-    //  QString type = ui->type->text();
-    // QString nb_taches = ui->nb_taches->text();
+  //  QString type = ui->type->text();
+   // QString nb_taches = ui->nb_taches->text();
 
 
     // Conversion des champs numériques avec vérification
     bool okId; //, okNbTaches = false, okSalaire;
     int idf = idf_str.toInt(&okId);
-    //  int salaire = ui->lineEdit_5->text().toInt(&okSalaire);
+  //  int salaire = ui->lineEdit_5->text().toInt(&okSalaire);
 
     // Vérification de l'ID
     if (!okId || idf_str.isEmpty()) {
@@ -333,3 +343,102 @@ void MainWindow::on_pushButton_calculer_clicked() {
     // Affichage du résultat dans l'interface
     ui->label_afficher_salaire->setText(QString::number(salaire) + " DT");
 }
+
+
+void MainWindow::on_pushButton_envoyer_clicked() {
+    sendSms();
+}
+
+void MainWindow::sendSms()
+{
+    // Récupération des informations des champs de texte de l'interface utilisateur
+    QString telf = ui->lineEdit_tel->text(); // Récupération du numéro de téléphone
+    QString localisation = ui->lineEdit_localisation_client->text(); // Récupération de la localisation
+
+    // Validation des cases à cocher
+    bool classic_clean = ui->classic_clean->isChecked();
+    bool smart_clean = ui->smart_clean->isChecked();
+    bool urgence = ui->urgence->isChecked();
+
+    if ((classic_clean && smart_clean) || (!classic_clean && !smart_clean && !urgence)) {
+        QMessageBox::warning(this, QObject::tr("Erreur"), QObject::tr("Vous devez choisir un type de nettoyage."));
+        return;
+    }
+
+    // Twilio credentials
+    const QString accountSid = "ACc0626fa295fbde3b6c2b3f76d35032a3";
+    const QString authToken = "13195a5c2857c4d9771de6357839d5f1";
+    const QString fromPhoneNumber = "+12512441041"; // Remplacer par votre numéro Twilio
+
+    // API endpoint
+    QUrl apiUrl(QString("https://api.twilio.com/2010-04-01/Accounts/%1/Messages.json").arg(accountSid));
+
+    QNetworkAccessManager* manager = new QNetworkAccessManager(this);
+    QNetworkRequest request(apiUrl);
+
+    QString authValue = "Basic " + QString(QByteArray(QString("%1:%2").arg(accountSid).arg(authToken).toUtf8()).toBase64());
+    request.setRawHeader("Authorization", authValue.toUtf8());
+
+    QHttpMultiPart* multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
+
+    // Préparation des parties du message
+    QHttpPart toPart;
+    toPart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"To\""));
+    toPart.setBody(telf.toUtf8());
+
+    QHttpPart fromPart;
+    fromPart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"From\""));
+    fromPart.setBody(fromPhoneNumber.toUtf8());
+
+    QHttpPart bodyPart;
+    QString message = "Localisation: " + localisation + "\n";
+    if (classic_clean) {
+        message += "Type de nettoyage: Nettoyage classique\n";
+    }
+    if (smart_clean) {
+        message += "Type de nettoyage: Nettoyage intelligent\n";
+    }
+    if (urgence) {
+        message += "Type de nettoyage: Urgence\n";
+    }
+    bodyPart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"Body\""));
+    bodyPart.setBody(message.toUtf8());
+
+    // Ajout des parties au multiPart
+    multiPart->append(toPart);
+    multiPart->append(fromPart);
+    multiPart->append(bodyPart);
+
+    // Envoi de la requête
+    QNetworkReply* reply = manager->post(request, multiPart);
+    multiPart->setParent(reply); // Associe le multiPart à la réponse pour le nettoyage automatique
+
+    // Connecte le signal finished à la méthode onSmsSent
+    connect(reply, &QNetworkReply::finished, [this, reply]() {
+        onSmsSent(reply);
+    });
+}
+
+void MainWindow::onSmsSent(QNetworkReply* reply)
+{
+    // Vérifie si le SMS a été envoyé avec succès
+    if (reply->error() == QNetworkReply::NoError) {
+        QMessageBox::information(this, "Succès", "SMS envoyé avec succès!");
+    } else {
+        // Gérer l'erreur et afficher la réponse de l'API Twilio
+        QByteArray responseData = reply->readAll();
+        QJsonDocument jsonResponse = QJsonDocument::fromJson(responseData);
+
+        // Si Twilio renvoie un message d'erreur dans la réponse
+        QString errorMessage = jsonResponse["message"].toString();
+
+        qDebug() << "Erreur lors de l'envoi du SMS:" << reply->errorString();
+        qDebug() << "Réponse Twilio:" << jsonResponse;
+
+        QMessageBox::warning(this, "Erreur", "Échec de l'envoi du SMS: " + errorMessage);
+    }
+
+    // Nettoyage après la réponse
+    reply->deleteLater();
+}
+
