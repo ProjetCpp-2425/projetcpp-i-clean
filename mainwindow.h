@@ -2,9 +2,10 @@
 #define MAINWINDOW_H
 
 #include "housekeeper.h"
+
 #include <QMainWindow>
 #include <QSqlQueryModel> // Assure-toi d'inclure QSqlQueryModel
-
+#include "qnetworkreply.h"
 namespace Ui {
 class MainWindow;
 }
@@ -28,6 +29,9 @@ private slots:
     void on_pushButton_pdf_2_clicked();
     void on_pushButton_stat_clicked();
     void on_pushButton_calculer_clicked();
+    void on_pushButton_envoyer_clicked();
+    void onSmsSent(QNetworkReply* reply);
+    void sendSms();
 
 
 private:
