@@ -145,32 +145,58 @@ void MainWindow::on_pushButton_modifier_clicked()
 
 
 
-void MainWindow::on_pushButton_rechercher_clicked()
-{
-    bool ok;
-    int idf = ui->lineEditSupprimer->text().toInt(&ok);  // Vérifier que la saisie est un entier valide
+void MainWindow::on_pushButton_rechercher_clicked() {
+    int idf = -1;  // Par défaut, pas de recherche par ID
+    QString adressef;
+    QString telf;
 
-    if (!ok) {
-        QMessageBox::warning(this, QObject::tr("Erreur de saisie"), QObject::tr("Veuillez entrer un ID valide (entier)."));
+    // Vérifie quel champ est utilisé pour la recherche
+    if (!ui->lineEditSupprimer->text().isEmpty()) {
+        bool ok;
+        idf = ui->lineEditSupprimer->text().toInt(&ok);
+        if (!ok) {
+            QMessageBox::warning(this, QObject::tr("Erreur de saisie"), QObject::tr("Veuillez entrer un ID valide (entier)."));
+            return;
+        }
+    } else if (!ui->lineEditAfficher->text().isEmpty()) {
+        adressef = ui->lineEditAfficher->text();
+    } else if (!ui->lineEditTel->text().isEmpty()) {
+        telf = ui->lineEditTel->text();
+    } else {
+        QMessageBox::warning(this, QObject::tr("Critère manquant"), QObject::tr("Veuillez entrer un critère de recherche."));
         return;
     }
 
+    // Appel de la méthode rechercher
     Housekeeper Htmp;
-    model = Htmp.rechercher(idf);
+    model = Htmp.rechercher(idf, adressef, telf);
     ui->tableView1->setModel(model);
 
+    // Vérifier les résultats
     if (model->rowCount() == 0) {
-        QMessageBox::information(this, QObject::tr("Aucun Résultat"), QObject::tr("Aucun housekeeper trouvé pour l'ID spécifié."));
+        QMessageBox::information(this, QObject::tr("Aucun Résultat"), QObject::tr("Aucun housekeeper trouvé pour le critère spécifié."));
     }
 }
 
 
 
 
-void MainWindow::on_pushButton_trier_clicked()
-{
+
+void MainWindow::on_pushButton_trier_clicked() {
+    QString critere = ui->comboBox_tri->currentText(); // Obtenir le critère sélectionné
     Housekeeper Htmp;
-    model = Htmp.trier();  // Appeler la méthode trier()
+
+    if (critere == "sort by adding date") {
+        model = Htmp.trier();
+    } else if (critere == "sort by adress") {
+        model = Htmp.trierParAdresse();
+    } else if (critere == "sort by name") {
+        model = Htmp.trierParPrenom();
+    } else {
+        QMessageBox::warning(this, QObject::tr("Erreur"), QObject::tr("Critère de tri invalide."));
+        return;
+    }
+
     ui->tableView1->setModel(model);
 
     if (model->rowCount() == 0) {
