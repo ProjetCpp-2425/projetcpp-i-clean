@@ -14,6 +14,7 @@
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QHttpMultiPart>
+#include <QKeyEvent>
 
 
 
@@ -31,17 +32,106 @@
 #include <QFont>
 #include <QColor>
 #include <QTextCharFormat>
+
+
+
+#include <QSerialPort>
+#include <QSerialPortInfo>
+QString buffer;
+
+
+QSerialPort *serial;
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    setupSerialPort();
+    ui->stackedWidget->setFocusPolicy(Qt::StrongFocus);  // ou Qt::FocusPolicy::ClickFocus
+    ui->stackedWidget->setFocus();
+
+    connect(ui->addButton, &QPushButton::clicked, this, &MainWindow::on_addButton_clicked);
+    connect(ui->settingsButton, &QPushButton::clicked, this, &MainWindow::on_settingsButton_clicked);
+    connect(ui->notifButton, &QPushButton::clicked, this, &MainWindow::on_notifButton_clicked);
+    connect(ui->salaireButton, &QPushButton::clicked, this, &MainWindow::on_salaireButton_clicked);
+
+
+    // Connectez le bouton à la fonction de démarrage de la surveillance
+    connect(ui->startMonitoringButton, &QPushButton::clicked, this, &MainWindow::startMonitoring);
+
+
+    serialPort = new QSerialPort(this);
+
+    // Configurez les paramètres du port série
+    serialPort->setPortName("COM5"); // Changez "COM3" selon votre configuration
+    serialPort->setBaudRate(QSerialPort::Baud9600);
+    serialPort->setDataBits(QSerialPort::Data8);
+    serialPort->setParity(QSerialPort::NoParity);
+    serialPort->setStopBits(QSerialPort::OneStop);
+    serialPort->setFlowControl(QSerialPort::NoFlowControl);
+
+    // Connectez le signal `readyRead` au slot
+    connect(serialPort, &QSerialPort::readyRead, this, &MainWindow::onSerialDataReceived);
+
+    // Ouvrir le port série
+    if (!serialPort->open(QIODevice::ReadOnly)) {
+        qDebug() << "Erreur : Impossible d'ouvrir le port série.";
+    }
+
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
 }
+
+
+
+void MainWindow::keyPressEvent(QKeyEvent *event)
+{
+    // Obtenez l'index actuel de la page affichée dans le QStackedWidget
+    int currentIndex = ui->stackedWidget->currentIndex();
+
+    // Si la touche flèche droite est pressée
+    if (event->key() == Qt::Key_Right) {
+        int nextIndex = currentIndex + 1;
+        if (nextIndex < ui->stackedWidget->count()) {
+            // Passe à la page suivante
+            ui->stackedWidget->setCurrentIndex(nextIndex);
+        }
+    }
+    // Si la touche flèche gauche est pressée
+    else if (event->key() == Qt::Key_Left) {
+        int prevIndex = currentIndex - 1;
+        if (prevIndex >= 0) {
+            // Passe à la page précédente
+            ui->stackedWidget->setCurrentIndex(prevIndex);
+        }
+    }
+    else {
+        // Si une autre touche est pressée, laisse l'événement se propager
+        QWidget::keyPressEvent(event);
+    }
+}
+void MainWindow::on_addButton_clicked() {
+    ui->stackedWidget->setCurrentWidget(ui->page_add);
+}
+
+void MainWindow::on_settingsButton_clicked() {
+    ui->stackedWidget->setCurrentWidget(ui->page_settings);
+}
+
+void MainWindow::on_notifButton_clicked() {
+    ui->stackedWidget->setCurrentWidget(ui->page_notif);
+}
+
+void MainWindow::on_salaireButton_clicked() {
+    ui->stackedWidget->setCurrentWidget(ui->page_salaire);
+}
+
+
+
+
 
 void MainWindow::on_pushButton_ajouter_clicked()
 {
@@ -50,14 +140,14 @@ void MainWindow::on_pushButton_ajouter_clicked()
     QString adressef = ui->adresse->text();
     QString idf_str = ui->id->text();
     QString telf = ui->tel->text();
-  //  QString type = ui->type->text();
-   // QString nb_taches = ui->nb_taches->text();
+    //  QString type = ui->type->text();
+    // QString nb_taches = ui->nb_taches->text();
 
 
     // Conversion des champs numériques avec vérification
     bool okId; //, okNbTaches = false, okSalaire;
     int idf = idf_str.toInt(&okId);
-  //  int salaire = ui->lineEdit_5->text().toInt(&okSalaire);
+    //  int salaire = ui->lineEdit_5->text().toInt(&okSalaire);
 
     // Vérification de l'ID
     if (!okId || idf_str.isEmpty()) {
@@ -393,7 +483,7 @@ void MainWindow::sendSms()
 
     // Twilio credentials
     const QString accountSid = "ACc0626fa295fbde3b6c2b3f76d35032a3";
-    const QString authToken = "13195a5c2857c4d9771de6357839d5f1";
+    const QString authToken = "4d04955b8ae13125917ddc190ce9c117";
     const QString fromPhoneNumber = "+12512441041"; // Remplacer par votre numéro Twilio
 
     // API endpoint
@@ -466,5 +556,117 @@ void MainWindow::onSmsSent(QNetworkReply* reply)
 
     // Nettoyage après la réponse
     reply->deleteLater();
+}
+
+
+
+
+
+
+
+
+void MainWindow::setupSerialPort() {
+    serial = new QSerialPort(this);
+    serial->setPortName("COM5");  // Remplacez par votre port réel
+
+    // Vérifiez si le port est disponible
+    bool portFound = false;
+    foreach (const QSerialPortInfo &portInfo, QSerialPortInfo::availablePorts()) {
+        if (portInfo.portName() == "COM5") {
+            portFound = true;
+            break;
+        }
+    }
+
+    if (!portFound) {
+        QMessageBox::critical(this, "Erreur", "Le port série spécifié (COM5) n'est pas disponible.");
+        return;
+    }
+
+    // Configuration du port série
+    serial->setBaudRate(QSerialPort::Baud9600);
+    serial->setDataBits(QSerialPort::Data8);
+    serial->setParity(QSerialPort::NoParity);
+    serial->setStopBits(QSerialPort::OneStop);
+
+    if (serial->open(QIODevice::ReadOnly)) {
+        connect(serial, &QSerialPort::readyRead, this, &MainWindow::onSerialDataReceived);
+        ui->alertLabel->setText("Port série configuré. Surveillance active.");
+    } else {
+        qDebug() << "Erreur lors de l'ouverture du port série : " << serial->errorString();
+        QMessageBox::critical(this, "Erreur", "Impossible d'ouvrir le port série.");
+    }
+}
+
+void MainWindow::readSerialData() {
+    QByteArray data = serial->readAll(); // Lire les données
+    QString message = QString::fromUtf8(data).trimmed();
+
+    if (message.startsWith("DATA:")) {
+        QStringList parts = message.split(":");
+        if (parts.size() == 2) {
+            int soundLevel = parts[1].toInt();
+            if (soundLevel > 10000) {  // Seuil pour détecter une dispute
+                ui->alertLabel->setText("Alerte : Dispute détectée !");
+
+                Housekeeper housekeeper;
+                housekeeper.incrementDisputeCount(ui->id_securite->text().toInt());
+            }
+        }
+    } else {
+        // Affichez uniquement les messages utiles
+        qDebug() << "Message reçu (non traité) : " << message;
+    }
+}
+
+
+
+void MainWindow::startMonitoring() {
+    if (serial && serial->isOpen()) {
+        ui->alertLabel->setText("Surveillance en cours...");
+        readSerialData();
+    } else {
+        QMessageBox::warning(this, "Erreur", "Le port série n'est pas ouvert.");
+    }
+}
+void MainWindow::onSerialDataReceived() {
+    QByteArray data = serial->readAll();  // Lire toutes les données disponibles
+    buffer += QString::fromUtf8(data);    // Ajouter au buffer
+
+    while (buffer.contains("\n")) {       // Traiter chaque message complet
+        int endIndex = buffer.indexOf("\n");
+        QString message = buffer.left(endIndex).trimmed();
+        processMessage(message);          // Appeler une fonction pour traiter le message
+        buffer = buffer.mid(endIndex + 1);
+    }
+}
+
+
+
+void MainWindow::processMessage(const QString &message) {
+    if (message.startsWith("DATA:")) {
+        QString value = message.mid(5);  // Extraire la valeur après "DATA:"
+        int soundLevel = value.toInt();
+
+        if (soundLevel > 500) {          // Seuil pour déclencher une alerte
+            ui->alertLabel->setText("Alerte : Dispute détectée !");
+            Housekeeper housekeeper;  // Instance de la classe Housekeeper
+            housekeeper.incrementDisputeCount(ui->id_securite->text().toInt());
+        }
+    }
+}
+
+void MainWindow::on_startMonitoringButton_clicked() {
+    if (ui->id_securite->text().isEmpty()) {
+        QMessageBox::warning(this, "Erreur", "Veuillez entrer l'ID de sécurité avant de démarrer !");
+        return;
+    }
+
+    if (serial && serial->isOpen()) {
+        ui->alertLabel->setText("Surveillance en cours...");
+        // Vous pouvez ajouter ici d'autres initialisations nécessaires.
+    } else {
+        QMessageBox::warning(this, "Erreur", "Le port série n'est pas ouvert.");
+    }
 }
 

@@ -262,3 +262,48 @@ bool Housekeeper::envoyerSMS(const QString &telf, const QString &localisation, b
 
     return true; // Retourne vrai pour que l'appelant sache que l'envoi a réussi
 }
+
+
+
+
+
+
+
+
+
+
+
+bool Housekeeper::incrementDisputeCount(int idf) {
+    QSqlQuery query;
+
+    // Vérifiez et récupérez le nombre actuel de disputes
+    query.prepare("SELECT nb_dispute FROM HOUSEKEEPER WHERE IDF = :idf");
+    query.bindValue(":idf", idf);
+
+    if (query.exec() && query.next()) {
+        int nb_dispute = query.value(0).toInt();
+        nb_dispute++;
+
+        if (nb_dispute >= 10) {
+            void afficher();
+            query.prepare("DELETE FROM HOUSEKEEPER WHERE IDF = :idf");
+            query.bindValue(":idf", idf);
+
+            if (query.exec()) {
+                QMessageBox::information(nullptr, "Employée supprimée",
+                                         QString("Housekeeper supprimé : ID: %1").arg(idf));
+                return true;
+            }
+        } else {
+            query.prepare("UPDATE HOUSEKEEPER SET nb_dispute = :nb WHERE IDF = :idf");
+            query.bindValue(":nb", nb_dispute);
+            query.bindValue(":idf", idf);
+            if (!query.exec()) {
+                qDebug() << "Erreur lors de la mise à jour du nombre de disputes : " << query.lastError();
+            }
+        }
+    } else {
+        qDebug() << "Erreur SQL ou ID introuvable : " << query.lastError();
+    }
+    return false;
+}

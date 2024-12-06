@@ -7,7 +7,7 @@
 class Housekeeper
 {
     QString nomf, prenomf,adressef , telf,  nb_taches, type;
-    int idf, salaire;
+    int idf, salaire,nb_dispute;
     //QString telf;
 public:
     Housekeeper(){}
@@ -18,12 +18,14 @@ public:
     QString getType() { return type; }
     QString getTelf(){return telf;}
     int getIdf(){return idf;}
+    int getNb_dispute(){return nb_dispute;}
     QString getNb_Taches() { return nb_taches; }
     int getSalaire() { return salaire; }
     void setNomf(QString n){nomf=n;}
     void setPrenomf(QString p){prenomf=p;}
     void setAdressef(QString adr){adressef=adr;}
     void setIdf(int idf){this->idf=idf;}
+    void setNb_dispute(int nb_dispute){this->nb_dispute=nb_dispute;}
     void setTelf(QString tel){telf=tel;}
     void setType(QString t) { type = t; }
     void setNb_Taches(QString nb) { nb_taches = nb; }
@@ -42,6 +44,8 @@ public:
     bool rechercher();
     int calculerSalaire( QString& type, QString nb_taches);
     bool envoyerSMS(const QString &tel, const QString &localisation, bool classic, bool smart, bool urgence);
+    bool incrementDisputeCount(int idf);
+
 
 };
 #endif // HOUSEKEEPER_H
