@@ -60,6 +60,11 @@ bool commande::ajouter()
     query.bindValue(":email", email);
     query.bindValue(":nbor", nbor);
 
+
+
+
+
+
     return query.exec();
 }
 
@@ -188,12 +193,16 @@ bool commande::rechercherParId(int id) {
 }
 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> f86bd98 (gestion commande)
 QMap<QString, int> commande::getCountByAdresse()
 {
     QMap<QString, int> addressCounts;
     QSqlQuery query;
 
+<<<<<<< HEAD
     // Query to count fournisseurs per adresse
     query.prepare("SELECT ADRESSE_F, COUNT(*) as count FROM fournisseur GROUP BY ADRESSE_F");
 
@@ -202,6 +211,16 @@ QMap<QString, int> commande::getCountByAdresse()
             QString adresse = query.value(0).toString();
             int count = query.value(1).toInt();
             addressCounts[adresse] = count;
+=======
+    // Modify the query to use the `commande` table instead of `fournisseur`
+    query.prepare("SELECT location, COUNT(*) as count FROM commande GROUP BY location");
+
+    if (query.exec()) {
+        while (query.next()) {
+            QString location = query.value(0).toString();
+            int count = query.value(1).toInt();
+            addressCounts[location] = count;
+>>>>>>> f86bd98 (gestion commande)
         }
     } else {
         qDebug() << "Error fetching statistics: " << query.lastError().text();
@@ -212,3 +231,11 @@ QMap<QString, int> commande::getCountByAdresse()
 
 
 
+<<<<<<< HEAD
+=======
+
+
+
+
+
+>>>>>>> f86bd98 (gestion commande)

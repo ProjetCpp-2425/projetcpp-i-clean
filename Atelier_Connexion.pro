@@ -13,8 +13,12 @@ QT += widgets
 
 QT += network
 
+<<<<<<< HEAD
 QT += charts
 
+=======
+QT += serialport
+>>>>>>> f86bd98 (gestion commande)
 
 
 
@@ -37,17 +41,24 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += \
+    arduino.cpp \
     commande.cpp \
+    dialog.cpp \
         main.cpp \
         mainwindow.cpp \
-    connection.cpp
+    connection.cpp \
+    qrcode.cpp
 
 HEADERS += \
+    arduino.h \
     commande.h \
+    dialog.h \
         mainwindow.h \
-    connection.h
+    connection.h \
+    qrcode.h
 
 FORMS += \
+        dialog.ui \
         mainwindow.ui
 
 # Default rules for deployment.

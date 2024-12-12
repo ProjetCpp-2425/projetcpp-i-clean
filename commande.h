@@ -37,7 +37,11 @@ public:
     bool modifier(int);
     bool exporterPDF(const QString& fileName, QSqlQueryModel* model);
     bool rechercherParId(int id);
+<<<<<<< HEAD
 
+=======
+    QMap<QString, int> getCountByAdresse();
+>>>>>>> f86bd98 (gestion commande)
 
 
 
